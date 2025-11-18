@@ -40,7 +40,6 @@ export default function Home() {
     try { localStorage.setItem('ai_agent_state', JSON.stringify(agentState)); } catch {}
   }, [agentState]);
 
-  // sync org draft
   useEffect(() => {
     setOrgDraft({
       name: agentState.org?.name || '',
@@ -78,14 +77,12 @@ export default function Home() {
     }));
   };
 
-  // Auto-resize helper for textarea inputs
   const autoResize = (el: HTMLTextAreaElement | null) => {
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 200) + 'px'; // cap height
+    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
   };
 
-  // Minimal formatter for bot text: headers (###), numbered items, bullets (• or -), and inline **bold**
   const renderFormatted = (text: string): JSX.Element => {
     const boldize = (t: string) => {
       const parts = t.split(/(\*\*[^*]+\*\*)/g);
