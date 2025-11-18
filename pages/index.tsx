@@ -50,12 +50,11 @@ export default function Home() {
     });
   }, [agentState.org?.name, agentState.org?.country, agentState.org?.industry, agentState.org?.size]);
 
-  const roleOptions = ['Provider', 'Deployer', 'Importer', 'Distributor'];
+  const roleOptions = ['Provider', 'Deployer', 'Importer', 'Distributor', 'Manufacturer', 'Other'];
 
   const activeStep = (() => {
     if (!agentState?.roles || agentState.roles.length === 0) return 1;
-    if (!agentState?.useCases || agentState.useCases.length === 0) return 2;
-    return 3;
+    return 2;
   })();
 
   const mergeState = (update?: Partial<AgentState>) => {
@@ -103,14 +102,12 @@ export default function Home() {
         {lines.map((line, i) => {
           const trimmed = line.trim();
           if (!trimmed) return <div key={i} className="h-2" />;
-          // Headers like ### Title
           if (/^#{2,6}\s+/.test(trimmed)) {
             const content = trimmed.replace(/^#{2,6}\s+/, '').trim();
             return (
               <div key={i} className="font-semibold mt-2">{boldize(content)}</div>
             );
           }
-          // Numbered items: 1. Text -> bold number
           const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
           if (numMatch) {
             return (
@@ -119,7 +116,6 @@ export default function Home() {
               </div>
             );
           }
-          // Bullets: leading • or -
           if (/^[•\-]\s+/.test(trimmed)) {
             const content = trimmed.replace(/^[•\-]\s+/, '');
             return (
@@ -132,7 +128,6 @@ export default function Home() {
     );
   };
 
-  // Send a message programmatically (used by clickable suggestions)
   const sendMessage = async (text: string) => {
     const userText = text.trim();
     if (!userText || loading) return;
@@ -216,12 +211,11 @@ export default function Home() {
         <div className="mx-auto w-full max-w-3xl px-4 mt-4">
 
           <div className="mb-2 flex justify-center gap-4 text-sm">
-            <div className={activeStep===1?'font-semibold':'text-gray-500'}>1. Role</div><div>→</div>
-            <div className={activeStep===2?'font-semibold':'text-gray-500'}>2. Use cases</div><div>→</div>
-            <div className={activeStep===3?'font-semibold':'text-gray-500'}>3. Registry</div>
+            <div className={activeStep===1?'font-semibold':'text-gray-500'}>1. Role</div>
+            <div>→</div>
+            <div className={activeStep===2?'font-semibold':'text-gray-500'}>2. Use cases</div>
           </div>
 
-          {/* Registry preview */}
           {agentState.useCases && agentState.useCases.length > 0 && (
             <div className="mb-4 rounded-md border bg-white p-4">
               <div className="mb-2 text-sm font-semibold">AI Use Cases ({agentState.useCases.length})</div>
@@ -270,7 +264,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Chat messages */}
           {messages.length > 0 && (
             <div className="py-6 pb-28">
               <div className="space-y-6">

@@ -18,7 +18,6 @@ type AgentState = {
   }>;
 };
 
-// --- Utility: Safe sanitizer to avoid crashes on malformed state ---
 function sanitizeStateUpdates(input: any): Partial<AgentState> | undefined {
   if (!input || typeof input !== 'object') return undefined;
 
@@ -91,25 +90,26 @@ You are an EU AI Act compliance assistant designed for small and medium-sized en
 Your goal is to help organizations go through the EU AI Act compliance process with the minimum number of steps. 
 
 Follow this structured reasoning order:
-1. Identify the organization’s role(s) in the AI ecosystem. Allowed roles: "provider", "deployer", "importer", "distributor", "manufacturer", "other".
-2. Inventory all AI use cases within the organization.
-3. Build a structured AI Use Case Registry summarizing those use cases.
+1. Identify the organization's role(s) in the AI ecosystem. Allowed roles: "provider", "deployer", "importer", "distributor", "manufacturer", "other"
+2. If the organization name is provided, search the web for additional context about the organization
+3. Inventory all AI use cases within the organization, including any found during web search
 
 Guidelines:
-- Always stay factual and concise.
-- Ask at most two clarification questions.
-- Never invent details — if missing, ask the user directly.
-- If using a third-party AI system without modifying or selling it, classify as "deployer".
-- Use business-friendly language.
-- Be deterministic and consistent.
+- Always stay factual and concise
+- For any organization mentioned, perform a web search to gather additional context
+- Use web search to find public information about the organization's AI usage, products, or services
+- Ask at most two clarification questions
+- Never invent details — if missing, ask the user directly
+- If using a third-party AI system without modifying or selling it, classify as "deployer"
+- Use business-friendly language
+- Be deterministic and consistent
 
 Output format (always prefer deeper, actionable content by default):
 1. Start with a short summary.
 2. Provide concise, actionable guidance that references the user's current use cases by name and includes a brief "why this matters" rationale for each item.
 3. Ask targeted follow-up questions (max 3) to collect missing details needed for compliance (e.g., data categories, owners, jurisdictions, risk rationale). Keep questions specific and answerable.
 4. Provide a roadmap (if you have enough details) that breaks work down into tasks with owners, due dates (<= 90 days), and acceptance criteria. One section per use case.
-5. If the user asks for examples or how-to, provide 2–3 short, concrete examples tailored to their described use cases.
-6. Then include **exactly one fenced JSON block** with this structure (guidance are non-clickable company recommendations; suggestions are optional next actions the user may take):
+5. Then include **exactly one fenced JSON block** with this structure (guidance are non-clickable company recommendations; suggestions are optional next actions the user may take):
 
 \`\`\`json
 {
@@ -191,7 +191,6 @@ Rules:
 
     const data = await response.json();
 
-    // Extract text from any OpenAI response format
     const extractText = (d: any): string => {
       if (!d) return '';
       if (typeof d.output_text === 'string' && d.output_text.trim()) return d.output_text;
@@ -266,13 +265,11 @@ Rules:
       }
     }
 
-    // Remove JSON before sending reply
     const cleanReply = reply
       .replace(/```json[\s\S]*?```/gi, '')
       .replace(/```[\s\S]*?```/gi, '')
       .trim();
 
-    // Expose top-level useCases for convenience
     const useCases = stateUpdates?.useCases;
 
     return res.status(200).json({
